@@ -6,6 +6,8 @@ import re
 import requests # to make http requests to the API
 from pathlib import Path # build files and folders
 
+start = time.time() # Start a timer
+
 API = "https://api.guildwars2.com"
 PAGE_SIZE = 200 # The maximum page size for the API is 300, so we will use that to minimize the number of requests we need to make
                 # The refill rate for tokens is 5 tokens per second, 300 per minute
@@ -256,3 +258,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+end = time.time() # End Timer
+print("It took", end - start, "seconds!")
