@@ -259,5 +259,13 @@ def main():
 if __name__ == "__main__":
     main()
 
+# Timer Calculations:
 end = time.time() # End Timer
-print("It took", end - start, "seconds!")
+elapsed = int(end - start)
+
+hours = elapsed//3600
+minutes = (elapsed % 3600)//60
+seconds = elapsed % 60
+
+formatted_time = f"{hours:02}:{minutes:02}:{seconds:02}"
+print("it took", formatted_time, "time")
