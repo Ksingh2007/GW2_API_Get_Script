@@ -16,7 +16,7 @@ PAGE_SIZE = 200 # The maximum page size for the API is 300, so we will use that 
 # Endpoints in which data is not static and needs to be updated frequently or on a seasonal basis.
 DYNAMIC_ENDPOINTS = (
     "commerce/",
-    "wvw/matches/",
+    "wvw/matches",
     "wvw/guilds",
     "wvw/timers",
     "achievements/daily",
@@ -52,7 +52,7 @@ session = requests.Session()
 session.headers["X-Schema-Version"] = "latest" # Get the latest version
 
 def get(path, **params):
-    url = f"{API}/{path}"
+    url = f"{API}/{path.lstrip('/')}"
 
     for attempts in range(6):
         try:
@@ -252,20 +252,23 @@ def main():
     ap.add_argument("--include-dynamic", action = "store_true", 
                     help = "download enpoints which data refreshes at some point eaither seasonal or daily")
     args = ap.parse_args()
+    
+    try:
+        run(args.lang, Path(args.out), args.include_dynamic)
+        print("\nDone.")
 
-    run(args.lang, Path(args.out), args.include_dynamic)
-    print("/nDone.")
+    finally:
+        # Timer Calculations:
+        end = time.time() # End Timer
+        elapsed = int(end - start)
+
+        hours = elapsed//3600
+        minutes = (elapsed % 3600)//60
+        seconds = elapsed % 60
+
+        formatted_time = f"{hours:02}:{minutes:02}:{seconds:02}"
+        print("it took", formatted_time, "time")
 
 if __name__ == "__main__":
     main()
-
-# Timer Calculations:
-end = time.time() # End Timer
-elapsed = int(end - start)
-
-hours = elapsed//3600
-minutes = (elapsed % 3600)//60
-seconds = elapsed % 60
-
-formatted_time = f"{hours:02}:{minutes:02}:{seconds:02}"
-print("it took", formatted_time, "time")
+    
