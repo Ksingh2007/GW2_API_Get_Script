@@ -4,6 +4,7 @@ import sys
 import argparse
 import re
 import requests # to make http requests to the API
+import traceback 
 from pathlib import Path # build files and folders
 
 start = time.time() # Start a timer
@@ -45,6 +46,7 @@ NEVER_FETCH = {
     "home",
     "mounts",
     "pvp",
+    "homestead",
 }
 
 
@@ -194,7 +196,7 @@ def run(langs, out_root, include_dynamic):
             print(f" - {path}: skipped (account data)")
 
         elif ":" in path:
-            print(f" - {path}: skiped (needs id)")
+            print(f" - {path}: skipped (needs id)")
 
         elif path in NEVER_FETCH:
             print(f" - {path}: skipped (parent/ needs search term)")
@@ -244,6 +246,18 @@ def run(langs, out_root, include_dynamic):
                 else:
                     print(f" - {name} skipped (status {status})")
 
+class Tee: # Takes output and sends it to both terminal and a log file
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, text):
+        for s in self.streams:
+            s.write(text)
+
+    def flush(self):
+        for s in self.streams:
+            s.flush()
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default = "gw2_data", help = "output directory")
@@ -252,11 +266,26 @@ def main():
     ap.add_argument("--include-dynamic", action = "store_true", 
                     help = "download enpoints which data refreshes at some point eaither seasonal or daily")
     args = ap.parse_args()
+
+    out_root = Path(args.out)
+    out_root.mkdir(parents=True, exist_ok=True)
+
+    stamp = time.strftime("%Y-%m-%d_%H-%M-%S")
+    log_path = out_root / f"download_log_{stamp}.txt"
+    log_file = open(log_path, "w", encoding="utf-8")
+    sys.stdout = Tee(sys.__stdout__, log_file)
+    sys.stdout = Tee(sys.__stderr__, log_file)
     
     try:
+        print(f"Language: {', '.join(args.lang)} | include dynamic: {args.include_dynamic}")
         run(args.lang, Path(args.out), args.include_dynamic)
         print("\nDone.")
 
+    except KeyboardInterrupt:
+        print("\nStopped by User")
+
+    except Exception:
+        traceback.print_exc() #Crash gets logged in file
     finally:
         # Timer Calculations:
         end = time.time() # End Timer
@@ -268,6 +297,11 @@ def main():
 
         formatted_time = f"{hours:02}:{minutes:02}:{seconds:02}"
         print("it took", formatted_time, "time")
+
+        sys.stdout = sys.__stdout__
+        sys.stdout = sys.__stderr__
+        log_file.close()
+        print(f"Log saved to {log_path}")
 
 if __name__ == "__main__":
     main()
