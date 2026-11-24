@@ -15,15 +15,14 @@ PAGE_SIZE = 200 # The maximum page size for the API is 300, so we will use that 
 
 
 # Endpoints in which data is not static and needs to be updated frequently or on a seasonal basis.
-DYNAMIC_ENDPOINTS = (
-    "commerce/",
-    "wvw/matches",
-    "wvw/guilds",
-    "wvw/timers",
-    "achievements/daily",
-    "events-state",
-    "wizardsvault"
-)
+DYNAMIC_GROUPS = {
+    "Trading Post": ("commerce/",),
+    "WVW live data": ("wvw/matches", "wvw/guilds", "wvw/timers",),
+    "Daily / Seasonal": ("achievements/daily", "events-state", "wizardsvault",),
+    # Unsure if wizardsvault keeps old entries or they are removed -- needs to be compared with past entries to proceed on putting it into static 
+}
+
+DYNAMIC_ENDPOINTS = tuple(p for prefixs in DYNAMIC_GROUPS.values() for p in prefixs)
 
 # Endpoint flags -
 # a - needs a auth key
