@@ -1,9 +1,14 @@
+"""
+GW2 Data Downloader
+"""
+
 import json
 import time # have a rest time between requests to avoid rate limiting
 import sys
 import argparse
 import re
 import requests # to make http requests to the API
+import threading # allow the script to run in the background
 import traceback 
 from pathlib import Path # build files and folders
 
