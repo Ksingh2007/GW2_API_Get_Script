@@ -57,10 +57,21 @@ NEVER_FETCH = {
 session = requests.Session()
 session.headers["X-Schema-Version"] = "latest" # Get the latest version
 
+# Button for GUI to stop the script checked by get() before getting a endpoint
+# Unwinds out of whatever endpoint is being downloaded WITHOUT saving it
+# A stopped download never leaves a half-finished file behind.
+stop_event = threading.Event()
+
+class Cancelled(Exception):
+    pass
+
 def get(path, **params):
     url = f"{API}/{path.lstrip('/')}"
 
     for attempts in range(6):
+        if stop_event.is_set():
+            raise Cancelled()
+            
         try:
             output = session.get(url, params=params, timeout=60)
         except requests.exceptions.RequestException as e:
