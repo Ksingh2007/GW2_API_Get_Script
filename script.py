@@ -289,7 +289,7 @@ def main():
     log_path = out_root / f"download_log_{stamp}.txt"
     log_file = open(log_path, "w", encoding="utf-8")
     sys.stdout = Tee(sys.__stdout__, log_file)
-    sys.stdout = Tee(sys.__stderr__, log_file)
+    sys.stderr = Tee(sys.__stderr__, log_file)
     
     try:
         print(f"Language: {', '.join(args.lang)} | include dynamic: {args.include_dynamic}")
@@ -314,7 +314,7 @@ def main():
         print("it took", formatted_time, "time")
 
         sys.stdout = sys.__stdout__
-        sys.stdout = sys.__stderr__
+        sys.stderr = sys.__stderr__
         log_file.close()
         print(f"Log saved to {log_path}")
 
