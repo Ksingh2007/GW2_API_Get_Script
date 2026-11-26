@@ -138,6 +138,29 @@ def list_endpoint(): # Discovers and lists all available enpoints
 
     return endpoints
 
+def classify(path, flags):
+    # 'static' - download by defult
+    # 'dynamic' - optional download
+    # 'skip' - never download
+    
+    if flags & ALWAYS_SKIP_FLAGS:
+        return "skip", "auth / disabled", None
+    
+    if path.startswith(AUTH_PREFIXES):
+        return "skip", "Account Data", None
+    
+    if ":" in path:
+        return "skip", "Needs IDs", None
+    
+    if path in NEVER_FETCH:
+        return "skip", "Parent/ needs search term", None
+
+    for group, prefixes in DYNAMIC_GROUPS.items():
+        if path.startswith(prefixes):
+            return "dynamic", "Dynamic", group
+
+    return "static", None, None
+
 def fetch_all(path, ids, lang):
     status, body, headers = fetch(path, page=0, page_size=PAGE_SIZE, lang = lang)
 
